@@ -37,5 +37,7 @@
     "rimraf": "^2.4.0",
     "chai": "^3.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "q": "^1.4.1"
+  }
 }
