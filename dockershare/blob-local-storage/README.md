@@ -1,0 +1,1 @@
+This is where the blob storage will read and write files.

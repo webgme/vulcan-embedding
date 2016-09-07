@@ -4,7 +4,10 @@
 # (assuming that you have docker properly installed on your machine)
 # 1. go to the directory where this file exists
 # 2. docker build -t webgme .
-# 3. docker run -d -p 8888:8888 --name=webgme webgme
+# 3. docker run -d -p 8888:8888 -v ~/dockershare:/dockershare --name=webgme webgme
+#
+# N.B. In the third command the ~/dockershare should have the same structure that ./dockershare in this repo has
+# and needs to be mapped to /dockershare. However you can put this folder anywhere and point to it when running the container.
 #
 # The result of your last command will be the hash id of your container. After successful startup,
 # you should be able to connect to your dockerized webgme on the 8888 port of your docker daemon machine
@@ -20,18 +23,23 @@
 
 
 FROM ubuntu:14.04.3
-MAINTAINER Tamas Kecskes <tamas.kecskes@vanderbilt.edu>
+MAINTAINER Patrik Meijer <patrik85@isis.vanderbilt.edu>
 
 # Replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # install necessary packages
+# install mongodb using the offical mongodb packages
+# Import MongoDB public GPG key AND create a MongoDB list file
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+RUN echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+
 RUN apt-get -qq update --fix-missing
 RUN apt-get install -y -q curl
-RUN sudo apt-get install -y -q build-essential libssl-dev mongodb-server git
+RUN sudo apt-get install -y -q build-essential libssl-dev mongodb-org git
 
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 4.4.4
+ENV NODE_VERSION 4.5.0
 
 # NVM
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash \
@@ -45,7 +53,7 @@ ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 RUN mkdir /usr/app
 
-RUN echo smallfiles = true >> /etc/mongodb.conf
+#RUN echo smallfiles = true >> /etc/mongodb.conf
 
 WORKDIR /usr/app
 
@@ -55,9 +63,11 @@ ADD . /usr/app/
 # Install app dependencies
 RUN npm install --unsafe-perm
 
+# Set environment variable for docker config to be used
+ENV NODE_ENV docker
+
 # create startup script
-# TODO find a way to execute with different configuraitons
-RUN echo '/etc/init.d/mongodb start' >> /root/run.sh &&\
+RUN echo '/usr/bin/mongod --dbpath /dockershare/db' >> /root/run.sh &&\
     echo 'npm start' >> /root/run.sh
 
 
