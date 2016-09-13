@@ -67,7 +67,7 @@ RUN npm install --unsafe-perm
 ENV NODE_ENV docker
 
 # create startup script
-RUN echo '/usr/bin/mongod --dbpath /dockershare/db' >> /root/run.sh &&\
+RUN echo '/usr/bin/mongod --dbpath /dockershare/db' >> /root/run.sh &\
     echo 'npm start' >> /root/run.sh
 
 
