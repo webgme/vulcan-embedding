@@ -53,8 +53,6 @@ ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 RUN mkdir /usr/app
 
-#RUN echo smallfiles = true >> /etc/mongodb.conf
-
 WORKDIR /usr/app
 
 # copy app source
@@ -67,7 +65,7 @@ RUN npm install --unsafe-perm
 ENV NODE_ENV docker
 
 # create startup script (wait till mongoo port is open before starting server)
-RUN printf '/usr/bin/mongod --dbpath /dockershare/db &\nwhile ! nc -z localhost 27017; do \n  sleep 0.5 \n  echo "Awaiting mongdo to listen at 27017" \ndone \nnpm start' >> /root/run.sh
+RUN printf '/usr/bin/mongod --smallfiles --dbpath /dockershare/db &\nwhile ! nc -z localhost 27017; do \n  sleep 0.5 \n  echo "Awaiting mongdo to listen at 27017" \ndone \nnpm start' >> /root/run.sh
 
 
 EXPOSE 8888
