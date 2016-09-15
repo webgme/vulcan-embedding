@@ -66,9 +66,8 @@ RUN npm install --unsafe-perm
 # Set environment variable for docker config to be used
 ENV NODE_ENV docker
 
-# create startup script
-RUN echo '/usr/bin/mongod --dbpath /dockershare/db' >> /root/run.sh &\
-    echo 'npm start' >> /root/run.sh
+# create startup script (wait till mongoo port is open before starting server)
+RUN printf '/usr/bin/mongod --dbpath /dockershare/db\nwhile ! nc -z localhost 27017; do \n  sleep 0.5 \ndone \nnpm start' >> /root/run.sh
 
 
 EXPOSE 8888
