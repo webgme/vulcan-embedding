@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
+    "start-proxy": "node proxyApp.js",
     "test": "node ./node_modules/mocha/bin/mocha --recursive test",
     "apply": "node ./node_modules/webgme/src/bin/apply.js",
     "diff": "node ./node_modules/webgme/src/bin/diff.js",
@@ -38,6 +39,8 @@
     "chai": "^3.0.0"
   },
   "dependencies": {
+    "express": "^4.14.1",
+    "http-proxy": "^1.16.2",
     "q": "^1.4.1"
   }
 }
