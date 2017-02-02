@@ -1,15 +1,15 @@
 {
   "GenericUIProjectNavigatorController": {
-    "disableProjectActions": true,
+    "disableProjectActions": false,
     "projectMenuClass": "gme-root",
     "branchMenuClass": ""
   },
   "GenericUIWebGMEStart": {
     "pageTitle": "WebGME",
-    "disableProjectsDialog": true
+    "disableProjectsDialog": false
   },
   "GenericUIPanelHeader": {
-    "disableUserProfile": true
+    "disableUserProfile": false
   },
   "GenericUIDefaultLayout": {
     "panels": [
