@@ -4,8 +4,7 @@
  */
 var Q = require('q'),
     superagent = require('superagent'),
-    TOKEN_NONCE = 'aVeryLongAndRandomSecret',
-    SERVER_URL = 'http://127.0.0.1:8082/token',
+    SERVER_URL = 'http://127.0.0.1:8082',
     TokenGeneratorBase = require('webgme/src/server/middleware/auth/tokengeneratorbase');
 
 
@@ -18,21 +17,24 @@ function ExternalTokenGenerator(mainLogger, gmeConfig, jwt) {
     //  TODO: Send test to external key generator service.
     // };
 
-    this.getToken = function (content, options, callback) {
-        var deferred = Q.defer(),
-            payload = {
-                nonce: TOKEN_NONCE,
-                content: content,
-                options: options
-            };
+    function getTokenUrl(userId) {
+        return [
+            SERVER_URL,
+            'token',
+            userId
+        ].join('/');
+    }
 
-        superagent.post(SERVER_URL)
-            .send(payload)
+    this.getToken = function (userId, callback) {
+        var deferred = Q.defer();
+
+        superagent.get(getTokenUrl(userId))
             .end(function (err, res) {
                 if (err) {
                     deferred.reject(err);
                 } else {
-                    deferred.resolve(res.body);
+                    //console.log('result', res);
+                    deferred.resolve(res.text);
                 }
             });
 

@@ -11,8 +11,7 @@
 
 var PROXY_PORT = 8080,
     EMBEDDER_PORT = 8081,
-    TOKEN_GEN_PORT = 8082,
-    TOKEN_NONCE = 'aVeryLongAndRandomSecret';
+    TOKEN_GEN_PORT = 8082;
 
 // 1 ) webgme sever
 var gmeConfig = require('./config');
@@ -30,9 +29,21 @@ webgmeServer.start(function () {
 var express = require('express');
 var embedServer = express();
 var path = require('path');
+var ejs = require('ejs');
+var indexHtmlPath = path.join(process.cwd(), 'static/index.html');
 
 embedServer.get('/embedder', function (req, res) {
-    res.sendFile(path.join(process.cwd(), 'static/index.html'));
+    fs.readFile(indexHtmlPath, 'utf8', function (err, indexTemp) {
+        if (err) {
+            logger.error(err);
+            res.send(404);
+        } else {
+            res.contentType('text/html');
+            res.send(ejs.render(indexTemp, {
+                token: req.query.token || ''
+            }));
+        }
+    });
 });
 
 embedServer.listen(EMBEDDER_PORT, function () {
@@ -48,9 +59,9 @@ var proxy = httpProxy.createProxyServer({
 var http = require('http');
 
 var proxyServer = http.createServer(function (req, res) {
-    console.log(req.url);
+    //console.log(req.url);
     // N.B. embedder cannot (and will not) collide with any webgme paths.
-    if (req.url === '/embedder') {
+    if (req.url === '/embedder' || req.url.indexOf('/embedder?token=') === 0) {
         proxy.web(req, res, {
             target: 'http://127.0.0.1:' + EMBEDDER_PORT
         });
@@ -74,28 +85,39 @@ console.log('Proxy server listening at', PROXY_PORT);
 // 4) token generator
 var tokenGenServer = express(),
     jwt = require('jsonwebtoken'),
-    bodyParser = require('bodyparser'),
+    bodyParser = require('body-parser'),
     fs = require('fs'),
-    privateKeyPath = path.join(__dirname, '../dockershare/keys/EXAMPLE_PRIVATE_KEY'),
-    privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+    privateKeyPath = path.join(__dirname, 'dockershare/keys/EXAMPLE_PRIVATE_KEY'),
+    privateKey = fs.readFileSync(privateKeyPath, 'utf8'),
+    // TODO: The algorithm is hard-coded in webgme..
+    jwtOptions = {
+        algorithm: gmeConfig.authentication.jwt.algorithm,
+        expiresIn: gmeConfig.authentication.jwt.expiresIn
+    };
+
+['dev', 'root'].forEach(function (userId) {
+    jwt.sign({userId: userId}, privateKey, jwtOptions, function (err, token) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('Token for', userId, '\n', token, '\n');
+        }
+    });
+});
 
 
 tokenGenServer.use(bodyParser.json());
 
-tokenGenServer.post('/token', function (req, res) {
-    if (reg.body.nonce !== TOKEN_NONCE) {
-        res.sendStatus(403);
-    } else {
-        jwt.sign(req.body.content, privateKey, req.body.options, function (err, key) {
-            if (err) {
-                console.log(err);
-                res.sendStatus(500);
-            } else {
-                console.log(key);
-                res.send(key);
-            }
-        });
-    }
+tokenGenServer.get('/token/:userId', function (req, res) {
+    jwt.sign({userId: req.params.userId}, privateKey, jwtOptions, function (err, token) {
+        if (err) {
+            console.log(err);
+            res.sendStatus(500);
+        } else {
+            //console.log('generated new token', token);
+            res.send(token);
+        }
+    });
 });
 
 tokenGenServer.listen(TOKEN_GEN_PORT, function () {
