@@ -1,17 +1,29 @@
-# This dockerfile is intended to build a docker image on a clean copy of the webgme repository.
+# This file is an example of how a webgme repo can be dockerized while persisting logs and reading auth keys from
+# the host. This setup also shows how to launch a mongo container and link it from the webgme container.
+# See ./config/config.docker.js for specific webgme config settings.
 #
-# Use the following steps to build and start-up your dockerized webgme:
-# (assuming that you have docker properly installed on your machine)
-# 1. go to the directory where this file exists
-# 2. docker build -t webgme .
-# 3. docker run -d -p 8888:8888 -v ~/dockershare:/dockershare --name=webgme webgme
+# Build a docker image for this repository
+# 1. make sure docker is installed
+# 2. make sure you have a clean copy of this repository
+# 3. go to the directory where this file exists (the root of your repo)
+# 4. $ docker build -t webgme .
 #
-# N.B. In the third command the ~/dockershare should have the same structure that ./dockershare in this repo has
-# and needs to be mapped to /dockershare. However you can put this folder anywhere and point to it when running the container.
+# (Docker might require sudo depending on your setup.)
 #
-# The result of your last command will be the hash id of your container. After successful startup,
-# you should be able to connect to your dockerized webgme on the 8888 port of your docker daemon machine
-# (the default ip address of the daemon is 192.168.99.100).
+# Before running the container make sure to have a running mongo docker container.
+# The persisted files from mongo and the logs and auth keys for webgme live outside the containers in this setup.
+# Copy the dockershare to ~/dockershare it will be mapped in each of this commands.
+#
+# Get the latest image from https://hub.docker.com/_/mongo/. At the point of testing this the latest was 3.4.2
+# $ docker pull mongo
+#
+# Start a container from the mongo image. (The container name must be mongo if using the ./config/config.docker.js).
+# $ docker run -d -p 27017:27017 -v ~/dockershare/db:/data/db --name mongo mongo
+#
+# Finally start the webgme app container from the image built here.
+# $ docker run -d -p 8888:8888 -v ~/dockershare:/dockershare --link mongo:mongo --name=webgme webgme
+#
+# After successful startup, you should be able to connect to your dockerized webgme on the 8888 port of the host.
 #
 # Useful commands
 # checking the status of your docker containers:    docker ps -a
@@ -19,6 +31,9 @@
 # stop your container:                              docker stop webgme
 # removing your container:                          docker rm webgme
 # removing your image:                              docker rmi webgme
+# list available images:                            docker images
+# exporting the image:                              docker save -o webgme.tar webgme
+# import an image:                                  docker load -i webgme.tar
 
 
 # https://github.com/nodejs/docker-node/blob/3b038b8a1ac8f65e3d368bedb9f979884342fdcb/6.9/Dockerfile
@@ -37,13 +52,13 @@ WORKDIR /usr/app
 # copy app source
 ADD . /usr/app/
 
-# Install node-modules
+# Install the node-modules.
 RUN npm install
 
-# Webgme is typically a peer-dependency
+# Webgme is a peer-dependency and needs to be installed explicitly.
 RUN npm install webgme
 
-# Set environment variable for docker config to be used
+# Set environment variable in order to use ./config/config.docker.js
 ENV NODE_ENV docker
 
 EXPOSE 8888
