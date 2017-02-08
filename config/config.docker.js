@@ -36,5 +36,9 @@ config.blob.fsDir = '/dockershare/blob-local-storage';
 // This is the exposed port from the docker container.
 config.server.port = 8888;
 
+
+// Connect to the linked mongo container N.B. constainer must be named mongo
+config.mongo.uri = 'mongodb://' + process.env.MONGO_PORT_27017_TCP_ADDR + ':' + process.env.MONGO_PORT_27017_TCP_PORT + '/multi';
+
 validateConfig(config);
 module.exports = config;

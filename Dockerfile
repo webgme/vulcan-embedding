@@ -25,10 +25,10 @@
 FROM node:boron
 MAINTAINER Patrik Meijer <patrik.meijer@vanderbilt.edu>
 
-RUN sudo apt-get update
+RUN apt-get update
 
 # Install git
-RUN sudo apt-get install -y git
+RUN apt-get install -y git
 
 RUN mkdir /usr/app
 
@@ -38,7 +38,10 @@ WORKDIR /usr/app
 ADD . /usr/app/
 
 # Install node-modules
-RUN npm install --unsafe-perm
+RUN npm install
+
+# Webgme is typically a peer-dependency
+RUN npm install webgme
 
 # Set environment variable for docker config to be used
 ENV NODE_ENV docker
