@@ -25,17 +25,10 @@
 FROM node:boron
 MAINTAINER Patrik Meijer <patrik.meijer@vanderbilt.edu>
 
-# Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-# Import MongoDB public GPG key AND create a MongoDB list file
-RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
-RUN echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
-
 RUN sudo apt-get update
 
-# Install mongodb and git
-RUN sudo apt-get install -y mongodb-org git
+# Install git
+RUN sudo apt-get install -y git
 
 RUN mkdir /usr/app
 
@@ -50,10 +43,6 @@ RUN npm install --unsafe-perm
 # Set environment variable for docker config to be used
 ENV NODE_ENV docker
 
-# create startup script (wait till mongo port is open before starting server)
-RUN printf '/usr/bin/mongod --smallfiles --dbpath /dockershare/db &\nwhile ! nc -z localhost 27017; do \n  sleep 0.5 \n  echo "Awaiting mongo to listen at 27017" \ndone \nnpm start' >> /root/run.sh
-
-
 EXPOSE 8888
 
-CMD ["bash", "-xe", "/root/run.sh"]
+CMD ["npm", "start"]

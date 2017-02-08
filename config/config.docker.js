@@ -33,8 +33,6 @@ config.server.log = {
 // 3. Blob files should be put outside..
 config.blob.fsDir = '/dockershare/blob-local-storage';
 
-// Note that mongodb files are persisted at /dockershare/db
-
 // This is the exposed port from the docker container.
 config.server.port = 8888;
 
