@@ -21,35 +21,21 @@
 # removing your image:                              docker rmi webgme
 
 
-
-FROM ubuntu:14.04.3
-MAINTAINER Patrik Meijer <patrik85@isis.vanderbilt.edu>
+# https://github.com/nodejs/docker-node/blob/3b038b8a1ac8f65e3d368bedb9f979884342fdcb/6.9/Dockerfile
+FROM node:boron
+MAINTAINER Patrik Meijer <patrik.meijer@vanderbilt.edu>
 
 # Replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-# install necessary packages
-# install mongodb using the offical mongodb packages
 # Import MongoDB public GPG key AND create a MongoDB list file
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-RUN echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+RUN echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
 
-RUN apt-get -qq update --fix-missing
-RUN apt-get install -y -q curl
-RUN sudo apt-get install -y -q build-essential libssl-dev mongodb-org git
+RUN sudo apt-get update
 
-ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 4.5.0
-
-# NVM
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash \
-    && source $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
-
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+# Install mongodb and git
+RUN sudo apt-get install -y mongodb-org git
 
 RUN mkdir /usr/app
 
@@ -58,14 +44,14 @@ WORKDIR /usr/app
 # copy app source
 ADD . /usr/app/
 
-# Install app dependencies
+# Install node-modules
 RUN npm install --unsafe-perm
 
 # Set environment variable for docker config to be used
 ENV NODE_ENV docker
 
-# create startup script (wait till mongoo port is open before starting server)
-RUN printf '/usr/bin/mongod --smallfiles --dbpath /dockershare/db &\nwhile ! nc -z localhost 27017; do \n  sleep 0.5 \n  echo "Awaiting mongdo to listen at 27017" \ndone \nnpm start' >> /root/run.sh
+# create startup script (wait till mongo port is open before starting server)
+RUN printf '/usr/bin/mongod --smallfiles --dbpath /dockershare/db &\nwhile ! nc -z localhost 27017; do \n  sleep 0.5 \n  echo "Awaiting mongo to listen at 27017" \ndone \nnpm start' >> /root/run.sh
 
 
 EXPOSE 8888
