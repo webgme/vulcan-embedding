@@ -1,0 +1,29 @@
+.navbar.navbar-inverse {
+  background-image: linear-gradient(to bottom, #000000 0, #251E1E 100%);
+}
+
+.designer-item {
+  .svg-decorator {
+    .svg-content {
+      &.ScientificStudy__earth-globe__svg {
+        svg {
+          width: 100px;
+          height: 100px;
+        }
+      }
+    }
+  }
+}
+
+.part {
+  .svg-decorator {
+    .svg-content {
+      &.ScientificStudy__earth-globe__svg {
+        svg {
+          width: 30px;
+          height: 30px;
+        }
+      }
+    }
+  }
+}
