@@ -10,14 +10,16 @@
 #
 # (Docker might require sudo depending on your setup.)
 #
-# Before running the container make sure to have a running mongo docker container.
-# The persisted files from mongo and the logs and auth keys for webgme live outside the containers in this setup.
-# Copy the dockershare to ~/dockershare it will be mapped in each of this commands.
+# Before running the webgme container you need a running mongo docker container.
+# Since the persisted files from mongo, the webgme logs and auth keys live outside of the containers in this setup,
+# we need to map a directory to the containters. For this particular example we will use the preset file structure as defined
+# in /dockershare and map it to both containers.
+# Copy the dockershare to ~/dockershare.
 #
 # Get the latest image from https://hub.docker.com/_/mongo/. At the point of testing this the latest was 3.4.2
 # $ docker pull mongo
 #
-# Start a container from the mongo image. (The container name must be mongo if using the ./config/config.docker.js).
+# Start a container from the mongo image. (If the name and/or port is edited the config.mongo.js must be changed.)
 # $ docker run -d -p 27017:27017 -v ~/dockershare/db:/data/db --name mongo mongo
 #
 # Finally start the webgme app container from the image built here.
