@@ -10,5 +10,6 @@ config.authentication.authorizer.path = path.join(__dirname, '../src/auth/author
 config.authentication.jwt.tokenGenerator = path.join(__dirname, '../src/auth/tokengenerator');
 config.authentication.jwt.privateKey = path.join(__dirname, '../dockershare/keys/EXAMPLE_PRIVATE_KEY');
 config.authentication.jwt.publicKey = path.join(__dirname, '../dockershare/keys/EXAMPLE_PUBLIC_KEY');
+config.visualization.extraCss.push('./vulcan-example/vulcan.css');
 validateConfig(config);
 module.exports = config;
