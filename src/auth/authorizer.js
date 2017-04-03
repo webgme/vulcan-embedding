@@ -6,7 +6,7 @@
 'use strict';
 
 var Q = require('q'),
-    AuthorizerBase = require('webgme/src/server/middleware/auth/defaultauthorizer');
+    AuthorizerBase = require('webgme/src/server/middleware/auth/authorizerbase');
 
 
 /**

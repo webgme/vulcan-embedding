@@ -14,10 +14,10 @@ npm run proxy
 
 From a browser go to:
 ```
-127.0.0.0:8080/embedder
+127.0.0.1:8080/embedder
 ```
 
 This will identify you as the guest. To be authenticated as `root` or `dev` instead visit:
 ```
-127.0.0.0:8080/embedder?token=<one of the generated tokens from console>
+127.0.0.1:8080/embedder?token=<one of the generated tokens from console>
 ```
