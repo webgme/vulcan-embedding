@@ -30,12 +30,13 @@
     "url": "https://github.com/webgme/vulcan-embedding/issues"
   },
   "homepage": "https://github.com/webgme/vulcan-embedding#readme",
-  "peerDependencies": {},
+  "peerDependencies": {
+    "webgme": "^2.0.0"
+  },
   "devDependencies": {
     "mocha": "^2.2.5",
     "rimraf": "^2.4.0",
-    "chai": "^3.0.0",
-    "webgme": "webgme/webgme#token-generator"
+    "chai": "^3.0.0"
   },
   "dependencies": {
     "body-parser": "^1.16.0",
